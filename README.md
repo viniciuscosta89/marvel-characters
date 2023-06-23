@@ -1,6 +1,7 @@
 # Marvel Characters
 
 This is an app to search for Marvel characters with Marvel API.
+Take a look [here](https://marvel-characters-viniciuscosta89.vercel.app).
 
 ## Technologies
 
@@ -13,7 +14,7 @@ This is an app to search for Marvel characters with Marvel API.
 
 ## 🚀 Project Structure
 
-Inside of your Astro project, you'll see the following folders and files:
+Inside this project, you'll see the following folders and files:
 
 ```
 /
