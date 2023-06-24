@@ -12,7 +12,7 @@ interface CharacterInfoType {
 	id: number;
 }
 
-const CharacterInfo = styled.div`
+const CharacterInfo = styled(motion.div)`
 	display: grid;
 	gap: var(--size-8);
 	grid-template-rows: auto 1fr;
@@ -36,7 +36,7 @@ const CharacterName = styled.h1`
 	line-height: normal;
 `;
 
-const LatestComicsTitle = styled.h2`
+const LatestComicsTitle = styled(motion.h2)`
 	font-size: var(--fs-500);
 	margin-block-end: var(--size-16);
 `;
@@ -56,6 +56,8 @@ const LatestComicsGrid = styled(motion.ul)`
 		display: flex;
 	}
 `;
+
+const CharacterText = styled(motion.div)``;
 
 const LatestComicsItem = styled(Comic).attrs({
 	as: 'a',
@@ -106,7 +108,7 @@ export default function Character() {
 		},
 	};
 
-	const ImgVariants: Variants = {
+	const imgVariants: Variants = {
 		hidden: {
 			opacity: 0,
 			scale: 0.5,
@@ -121,6 +123,30 @@ export default function Character() {
 		},
 	};
 
+	const enterFromLeft: Variants = {
+		show: {
+			opacity: 1,
+			x: 0,
+			transition: { delay: 0.25, duration: 0.5, ease: 'easeInOut' },
+		},
+		hidden: {
+			opacity: 0,
+			x: -200,
+		},
+	};
+
+	const enterFromRight: Variants = {
+		show: {
+			opacity: 1,
+			x: 0,
+			transition: { delay: 0.25, duration: 0.5, ease: 'easeInOut' },
+		},
+		hidden: {
+			opacity: 0,
+			x: 200,
+		},
+	};
+
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -130,23 +156,29 @@ export default function Character() {
 		>
 			<Container>
 				{isLoadingCharacter ? (
-					<div>Loading character info...</div>
+					<CharacterInfo initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+						<p>Loading character info...</p>
+					</CharacterInfo>
 				) : (
 					<CharacterInfo>
 						<CharacterPicture
 							src={`${character?.thumbnail.path}.${character?.thumbnail.extension}`}
 							alt={character?.name}
-							initial={{ opacity: 0, scale: 1.5 }}
-							animate={{ opacity: 1, scale: 1 }}
-							transition={{ delay: 0.25, duration: 0.5, ease: 'easeInOut' }}
-							exit={{ opacity: 0, scale: 1.5 }}
+							variants={enterFromLeft}
+							animate="show"
+							initial="hidden"
+							exit="hidden"
 						/>
-						<CharacterName>{character?.name}</CharacterName>
-						<p>{character?.description || 'No description 🙁'}</p>
+						<CharacterText variants={enterFromRight} animate="show" initial="hidden" exit="hidden">
+							<CharacterName>{character?.name}</CharacterName>
+							<p>{character?.description || 'No description 🙁'}</p>
+						</CharacterText>
 					</CharacterInfo>
 				)}
 
-				<LatestComicsTitle>Latest Comics</LatestComicsTitle>
+				<LatestComicsTitle variants={enterFromLeft} animate="show" initial="hidden" exit="hidden">
+					Latest Comics
+				</LatestComicsTitle>
 				{characterComics && (
 					<LatestComicsGrid variants={listVariants} initial="hidden" animate="show">
 						{characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => (
@@ -160,7 +192,7 @@ export default function Character() {
 										src={`${thumbnail.path}.${thumbnail.extension}`}
 										alt={`${title} cover`}
 										loading="lazy"
-										variants={ImgVariants}
+										variants={imgVariants}
 									/>
 									<span>{title}</span>
 								</LatestComicsItem>

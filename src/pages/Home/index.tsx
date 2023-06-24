@@ -106,7 +106,7 @@ export default function Home() {
 		},
 	};
 
-	const ImgVariants: Variants = {
+	const imgVariants: Variants = {
 		hidden: {
 			opacity: 0,
 			scale: 0.5,
@@ -152,7 +152,7 @@ export default function Home() {
 									<motion.img
 										src={`${character.thumbnail.path}.${character.thumbnail.extension}`}
 										alt={character?.name}
-										variants={ImgVariants}
+										variants={imgVariants}
 									/>
 									<span>{character?.name}</span>
 								</Comic>
