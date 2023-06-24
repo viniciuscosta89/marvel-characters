@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 
 import marvelLogo from '../../assets/marvel-logo.png';
 
@@ -50,7 +50,7 @@ export default function Header() {
 				<Navigation>
 					<ul>
 						<li>
-							<Link to="/">Home</Link>
+							<NavLink to="/">Home</NavLink>
 						</li>
 					</ul>
 				</Navigation>

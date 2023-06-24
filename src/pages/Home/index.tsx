@@ -3,6 +3,7 @@ import { useNameStartsWithCharacter } from '../../hooks/useCharacter';
 import { CharacterContext } from '../../contexts/CharacterContext';
 import styled from 'styled-components';
 import { Comic } from '../../components/Comic';
+import { motion, Variants } from 'framer-motion';
 
 const InputWrapper = styled.div`
 	background-color: ${({ theme }) => theme.colors.red[400]};
@@ -43,7 +44,7 @@ const Input = styled.input`
 	}
 `;
 
-const ComicsGrid = styled.ul`
+const ComicsGrid = styled(motion.ul)`
 	display: grid;
 	list-style: none;
 	gap: var(--size-16);
@@ -53,12 +54,12 @@ const ComicsGrid = styled.ul`
 		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
 	}
 
-	> li {
+	li {
 		display: flex;
 	}
 `;
 
-const GridSpan = styled.div`
+const GridSpan = styled(motion.div)`
 	grid-column: span 3;
 `;
 
@@ -82,41 +83,100 @@ export default function Home() {
 
 	const { data: charactersList, isLoading, isSuccess } = useNameStartsWithCharacter(character);
 
+	const listVariants: Variants = {
+		hidden: { opacity: 0 },
+		show: {
+			opacity: 1,
+			transition: {
+				staggerChildren: 0.1,
+				type: 'spring',
+			},
+		},
+	};
+
+	const itemVariants: Variants = {
+		hidden: {
+			opacity: 0,
+			y: -150,
+		},
+		show: {
+			opacity: 1,
+			y: 0,
+			type: 'spring',
+		},
+	};
+
+	const ImgVariants: Variants = {
+		hidden: {
+			opacity: 0,
+			scale: 0.5,
+		},
+		show: {
+			opacity: 1,
+			scale: 1,
+			type: 'spring',
+			transition: {
+				delay: 0.8,
+			},
+		},
+	};
+
 	return (
-		<>
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			transition={{ delay: 0.25, duration: 0.5, ease: 'easeOut' }}
+			exit={{ opacity: 0 }}
+		>
 			<InputWrapper>
 				<Input onBlur={handleBlur} onKeyUp={handleKeyUp} type="text" required />
 				<Label>Name starts with...</Label>
 			</InputWrapper>
 
-			<ComicsGrid>
-				{character && isLoading ? <div>Loading characters...</div> : null}
+			{charactersList && (
+				<ComicsGrid variants={listVariants} initial="hidden" animate="show">
+					{isSuccess && charactersList.data.results.length === 0 ? (
+						<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+							🚫 Try another name...
+						</motion.div>
+					) : (
+						charactersList.data.results.map((character) => (
+							<motion.li key={character.id} variants={itemVariants}>
+								<Comic
+									to={`character/${character.name
+										.toLowerCase()
+										.replace(/[^a-zA-Z0-9 ]/gi, '')
+										.replace(/ /gi, '-')}`}
+									onClick={() => handleClick({ name: character.name, id: character.id })}
+								>
+									<motion.img
+										src={`${character.thumbnail.path}.${character.thumbnail.extension}`}
+										alt={character?.name}
+										variants={ImgVariants}
+									/>
+									<span>{character?.name}</span>
+								</Comic>
+							</motion.li>
+						))
+					)}
+				</ComicsGrid>
+			)}
 
-				{!character && <GridSpan>Type your character's name above</GridSpan>}
+			{character && isLoading && (
+				<ComicsGrid>
+					<motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+						Loading characters...
+					</motion.div>
+				</ComicsGrid>
+			)}
 
-				{isSuccess && charactersList?.data.results.length === 0 ? (
-					<div>🚫 Try another name...</div>
-				) : (
-					charactersList?.data.results.map((character) => (
-						<li key={character.id}>
-							<Comic
-								to={`character/${character.name
-									.toLowerCase()
-									.replace(/[^a-zA-Z0-9 ]/gi, '')
-									.replace(/ /gi, '-')}`}
-								onClick={() => handleClick({ name: character.name, id: character.id })}
-							>
-								<img
-									src={`${character.thumbnail.path}.${character.thumbnail.extension}`}
-									alt={character?.name}
-									loading="lazy"
-								/>
-								<span>{character?.name}</span>
-							</Comic>
-						</li>
-					))
-				)}
-			</ComicsGrid>
-		</>
+			{!character && (
+				<ComicsGrid>
+					<GridSpan initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
+						Type your character's name above
+					</GridSpan>
+				</ComicsGrid>
+			)}
+		</motion.div>
 	);
 }

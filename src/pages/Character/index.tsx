@@ -1,9 +1,10 @@
 import { useContext } from 'react';
+import styled from 'styled-components';
+import { motion, Variants } from 'framer-motion';
 import { useFullNameCharacter } from '../../hooks/useCharacter';
 import { CharacterContext } from '../../contexts/CharacterContext';
 import { useCharacterComics } from '../../hooks/useComics';
 import { Container } from '../../components/Container';
-import styled from 'styled-components';
 import { Comic } from '../../components/Comic';
 
 interface CharacterInfoType {
@@ -24,7 +25,7 @@ const CharacterInfo = styled.div`
 	}
 `;
 
-const CharacterPicture = styled.img`
+const CharacterPicture = styled(motion.img)`
 	border-radius: var(--size-8);
 	box-shadow: 0 8px 16px -4px hsl(0deg 0% 0% / 0.6);
 	grid-row: span 2;
@@ -40,7 +41,7 @@ const LatestComicsTitle = styled.h2`
 	margin-block-end: var(--size-16);
 `;
 
-const LatestComicsGrid = styled.ul`
+const LatestComicsGrid = styled(motion.ul)`
 	display: grid;
 	gap: var(--size-8);
 	grid-template-columns: repeat(2, 1fr);
@@ -49,6 +50,10 @@ const LatestComicsGrid = styled.ul`
 
 	@media (min-width: 768px) {
 		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+	}
+
+	> li {
+		display: flex;
 	}
 `;
 
@@ -76,41 +81,106 @@ export default function Character() {
 	const character = fetchCharacter?.data.results[0];
 	document.title = `${character?.name} | Marvel Characters`;
 
-	return (
-		<Container>
-			{isLoadingCharacter ? (
-				<div>Loading character info...</div>
-			) : (
-				<CharacterInfo>
-					<CharacterPicture
-						src={`${character?.thumbnail.path}.${character?.thumbnail.extension}`}
-						alt={character?.name}
-					/>
-					<CharacterName>{character?.name}</CharacterName>
-					<p>{character?.description || 'No description 🙁'}</p>
-				</CharacterInfo>
-			)}
+	// Framer Motion
 
-			<LatestComicsTitle>Latest Comics</LatestComicsTitle>
-			<LatestComicsGrid>
-				{isLoadingComics ? (
-					<div>Loading latest comics...</div>
+	const listVariants: Variants = {
+		hidden: { opacity: 0 },
+		show: {
+			opacity: 1,
+			transition: {
+				staggerChildren: 0.1,
+				type: 'spring',
+			},
+		},
+	};
+
+	const itemVariants: Variants = {
+		hidden: {
+			opacity: 0,
+			y: -150,
+		},
+		show: {
+			opacity: 1,
+			y: 0,
+			type: 'spring',
+		},
+	};
+
+	const ImgVariants: Variants = {
+		hidden: {
+			opacity: 0,
+			scale: 0.5,
+		},
+		show: {
+			opacity: 1,
+			scale: 1,
+			type: 'spring',
+			transition: {
+				delay: 0.8,
+			},
+		},
+	};
+
+	return (
+		<motion.div
+			initial={{ opacity: 0 }}
+			animate={{ opacity: 1 }}
+			transition={{ delay: 0.25, duration: 0.5, ease: 'easeOut' }}
+			exit={{ opacity: 0 }}
+		>
+			<Container>
+				{isLoadingCharacter ? (
+					<div>Loading character info...</div>
 				) : (
-					characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => {
-						return (
-							<LatestComicsItem
-								key={id}
-								href={urls.filter((url) => url.type === 'detail')[0].url}
-								target="_blank"
-								title="Click for more info on Marvel.com"
-							>
-								<img src={`${thumbnail.path}.${thumbnail.extension}`} alt={`${title} cover`} loading="lazy" />
-								<span>{title}</span>
-							</LatestComicsItem>
-						);
-					})
+					<CharacterInfo>
+						<CharacterPicture
+							src={`${character?.thumbnail.path}.${character?.thumbnail.extension}`}
+							alt={character?.name}
+							initial={{ opacity: 0, scale: 1.5 }}
+							animate={{ opacity: 1, scale: 1 }}
+							transition={{ delay: 0.25, duration: 0.5, ease: 'easeInOut' }}
+							exit={{ opacity: 0, scale: 1.5 }}
+						/>
+						<CharacterName>{character?.name}</CharacterName>
+						<p>{character?.description || 'No description 🙁'}</p>
+					</CharacterInfo>
 				)}
-			</LatestComicsGrid>
-		</Container>
+
+				<LatestComicsTitle>Latest Comics</LatestComicsTitle>
+				{characterComics && (
+					<LatestComicsGrid variants={listVariants} initial="hidden" animate="show">
+						{characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => (
+							<motion.li key={id} variants={itemVariants}>
+								<LatestComicsItem
+									href={urls.filter((url) => url.type === 'detail')[0].url}
+									target="_blank"
+									title="Click for more info on Marvel.com"
+								>
+									<motion.img
+										src={`${thumbnail.path}.${thumbnail.extension}`}
+										alt={`${title} cover`}
+										loading="lazy"
+										variants={ImgVariants}
+									/>
+									<span>{title}</span>
+								</LatestComicsItem>
+							</motion.li>
+						))}
+					</LatestComicsGrid>
+				)}
+
+				{isLoadingComics && (
+					<LatestComicsGrid>
+						<div>Loading latest comics...</div>
+					</LatestComicsGrid>
+				)}
+
+				{characterComics?.data.results.length === 0 && (
+					<LatestComicsGrid>
+						<p>No comics for this character 😅</p>
+					</LatestComicsGrid>
+				)}
+			</Container>
+		</motion.div>
 	);
 }
