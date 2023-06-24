@@ -29,6 +29,7 @@ const CharacterPicture = styled(motion.img)`
 	border-radius: var(--size-8);
 	box-shadow: 0 8px 16px -4px hsl(0deg 0% 0% / 0.6);
 	grid-row: span 2;
+	width: 100%;
 `;
 
 const CharacterName = styled.h1`
@@ -79,6 +80,11 @@ export default function Character() {
 	const { data: fetchCharacter, isLoading: isLoadingCharacter } = useFullNameCharacter(
 		characterInfoObjectFromStorage.name || characterInfo.name
 	);
+
+	if (isLoadingComics) {
+		document.body.scrollTop = 0; // For Safari
+		document.documentElement.scrollTop = 0; // For Chrome, Firefox, IE and Opera
+	}
 
 	const character = fetchCharacter?.data.results[0];
 	document.title = `${character?.name} | Marvel Characters`;
@@ -157,7 +163,7 @@ export default function Character() {
 			<Container>
 				{isLoadingCharacter ? (
 					<CharacterInfo initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-						<p>Loading character info...</p>
+						<p style={{ minHeight: '400px' }}>Loading character info...</p>
 					</CharacterInfo>
 				) : (
 					<CharacterInfo>
@@ -176,29 +182,31 @@ export default function Character() {
 					</CharacterInfo>
 				)}
 
-				<LatestComicsTitle variants={enterFromLeft} animate="show" initial="hidden" exit="hidden">
-					Latest Comics
-				</LatestComicsTitle>
 				{characterComics && (
-					<LatestComicsGrid variants={listVariants} initial="hidden" animate="show">
-						{characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => (
-							<motion.li key={id} variants={itemVariants}>
-								<LatestComicsItem
-									href={urls.filter((url) => url.type === 'detail')[0].url}
-									target="_blank"
-									title="Click for more info on Marvel.com"
-								>
-									<motion.img
-										src={`${thumbnail.path}.${thumbnail.extension}`}
-										alt={`${title} cover`}
-										loading="lazy"
-										variants={imgVariants}
-									/>
-									<span>{title}</span>
-								</LatestComicsItem>
-							</motion.li>
-						))}
-					</LatestComicsGrid>
+					<>
+						<LatestComicsTitle variants={enterFromLeft} animate="show" initial="hidden" exit="hidden">
+							Latest Comics
+						</LatestComicsTitle>
+						<LatestComicsGrid variants={listVariants} initial="hidden" animate="show">
+							{characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => (
+								<motion.li key={id} variants={itemVariants}>
+									<LatestComicsItem
+										href={urls.filter((url) => url.type === 'detail')[0].url}
+										target="_blank"
+										title="Click for more info on Marvel.com"
+									>
+										<motion.img
+											src={`${thumbnail.path}.${thumbnail.extension}`}
+											alt={`${title} cover`}
+											loading="lazy"
+											variants={imgVariants}
+										/>
+										<span>{title}</span>
+									</LatestComicsItem>
+								</motion.li>
+							))}
+						</LatestComicsGrid>
+					</>
 				)}
 
 				{isLoadingComics && (
