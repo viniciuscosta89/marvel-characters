@@ -13,7 +13,6 @@ const hash = md5(`${timestamp}${VITE_PRIVATE_KEY}${VITE_PUBLIC_KEY}`);
 
 const getCharacter = async ({ nameStarts, characterName }: useCharacterTypes): Promise<Character> => {
 	const partOrFullName = nameStarts ? `nameStartsWith=${nameStarts}` : `name=${characterName}`;
-	console.log(partOrFullName);
 
 	const response = await fetch(
 		`https://gateway.marvel.com/v1/public/characters?${partOrFullName}&ts=${timestamp}&apikey=${VITE_PUBLIC_KEY}&hash=${hash}`
