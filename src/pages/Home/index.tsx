@@ -67,13 +67,21 @@ export default function Home() {
 	const [character, setCharacter] = useState('');
 	const { handleCharacterInfo } = useContext(CharacterContext);
 
+	const previousSearchCharacter = sessionStorage.getItem('searchCharacter');
+
+	if (!character && previousSearchCharacter) {
+		setCharacter(previousSearchCharacter);
+	}
+
 	const handleBlur = (e: FocusEvent<HTMLInputElement, Element>) => {
 		setCharacter(e.target.value);
+		sessionStorage.setItem('searchCharacter', e.target.value);
 	};
 
 	const handleKeyUp = (e: KeyboardEvent<HTMLInputElement>) => {
 		if (e.key === 'Enter') {
 			setCharacter((e.target as HTMLInputElement).value);
+			sessionStorage.setItem('searchCharacter', (e.target as HTMLInputElement).value);
 		}
 	};
 
@@ -83,13 +91,13 @@ export default function Home() {
 
 	const { data: charactersList, isLoading, isSuccess } = useNameStartsWithCharacter(character);
 
+	// Framer Motion Variants
 	const listVariants: Variants = {
 		hidden: { opacity: 0 },
 		show: {
 			opacity: 1,
 			transition: {
 				staggerChildren: 0.1,
-				type: 'spring',
 			},
 		},
 	};
@@ -102,7 +110,6 @@ export default function Home() {
 		show: {
 			opacity: 1,
 			y: 0,
-			type: 'spring',
 		},
 	};
 
@@ -114,7 +121,6 @@ export default function Home() {
 		show: {
 			opacity: 1,
 			scale: 1,
-			type: 'spring',
 			transition: {
 				delay: 0.8,
 			},
@@ -129,8 +135,8 @@ export default function Home() {
 			exit={{ opacity: 0 }}
 		>
 			<InputWrapper>
-				<Input onBlur={handleBlur} onKeyUp={handleKeyUp} type="text" required />
-				<Label>Name starts with...</Label>
+				<Input id="search" onBlur={handleBlur} onKeyUp={handleKeyUp} type="search" required />
+				<Label htmlFor="search">Name starts with...</Label>
 			</InputWrapper>
 
 			{charactersList && (

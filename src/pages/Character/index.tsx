@@ -89,8 +89,7 @@ export default function Character() {
 	const character = fetchCharacter?.data.results[0];
 	document.title = `${character?.name} | Marvel Characters`;
 
-	// Framer Motion
-
+	// Framer Motion Variants
 	const listVariants: Variants = {
 		hidden: { opacity: 0 },
 		show: {
