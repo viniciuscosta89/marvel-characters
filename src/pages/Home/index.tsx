@@ -49,10 +49,7 @@ const ComicsGrid = styled(motion.ul)`
 	list-style: none;
 	gap: var(--size-16);
 	padding: var(--size-48) var(--size-32);
-
-	@media (width >= 768px) {
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	}
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
 
 	li {
 		display: flex;

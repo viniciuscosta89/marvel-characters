@@ -45,13 +45,9 @@ const LatestComicsTitle = styled(motion.h2)`
 const LatestComicsGrid = styled(motion.ul)`
 	display: grid;
 	gap: var(--size-8);
-	grid-template-columns: repeat(2, 1fr);
+	grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
 	list-style: none;
 	margin-block-end: var(--size-48);
-
-	@media (min-width: 768px) {
-		grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-	}
 
 	> li {
 		display: flex;
