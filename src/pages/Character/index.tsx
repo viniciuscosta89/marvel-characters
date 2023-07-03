@@ -5,7 +5,7 @@ import { useFullNameCharacter } from '../../hooks/useCharacter';
 import { CharacterContext } from '../../contexts/CharacterContext';
 import { useCharacterComics } from '../../hooks/useComics';
 import { Container } from '../../components/Container';
-import { Comic } from '../../components/Comic';
+import { Card } from '../../components/Card';
 
 interface CharacterInfoType {
 	name: string;
@@ -60,14 +60,6 @@ const LatestComicsGrid = styled(motion.ul)`
 
 const CharacterText = styled(motion.div)``;
 
-const LatestComicsItem = styled(Comic).attrs({
-	as: 'a',
-})`
-	> img {
-		aspect-ratio: 663 / 1024;
-	}
-`;
-
 export default function Character() {
 	const { characterInfo } = useContext(CharacterContext);
 
@@ -96,7 +88,6 @@ export default function Character() {
 			opacity: 1,
 			transition: {
 				staggerChildren: 0.1,
-				type: 'spring',
 			},
 		},
 	};
@@ -109,22 +100,6 @@ export default function Character() {
 		show: {
 			opacity: 1,
 			y: 0,
-			type: 'spring',
-		},
-	};
-
-	const imgVariants: Variants = {
-		hidden: {
-			opacity: 0,
-			scale: 0.5,
-		},
-		show: {
-			opacity: 1,
-			scale: 1,
-			type: 'spring',
-			transition: {
-				delay: 0.8,
-			},
 		},
 	};
 
@@ -186,25 +161,24 @@ export default function Character() {
 						<LatestComicsTitle variants={enterFromLeft} animate="show" initial="hidden" exit="hidden">
 							Latest Comics
 						</LatestComicsTitle>
-						<LatestComicsGrid variants={listVariants} initial="hidden" animate="show">
-							{characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => (
-								<motion.li key={id} variants={itemVariants}>
-									<LatestComicsItem
-										href={urls.filter((url) => url.type === 'detail')[0].url}
-										target="_blank"
-										title="Click for more info on Marvel.com"
-									>
-										<motion.img
-											src={`${thumbnail.path}.${thumbnail.extension}`}
-											alt={`${title} cover`}
-											loading="lazy"
-											variants={imgVariants}
-										/>
-										<span>{title}</span>
-									</LatestComicsItem>
-								</motion.li>
-							))}
-						</LatestComicsGrid>
+						{characterComics?.data.results.length >= 1 && (
+							<LatestComicsGrid variants={listVariants} initial="hidden" animate="show">
+								{characterComics?.data.results.slice(0, 5).map(({ id, title, thumbnail, urls }) => (
+									<motion.li key={id} variants={itemVariants}>
+										<Card.Root>
+											<Card.Link type="a" url={urls.filter((url) => url.type === 'detail')[0].url}>
+												<Card.Image
+													src={`${thumbnail.path}.${thumbnail.extension}`}
+													alt={`${title} cover`}
+													aspectRatio="663 / 1024"
+												/>
+												<Card.Title text={title} />
+											</Card.Link>
+										</Card.Root>
+									</motion.li>
+								))}
+							</LatestComicsGrid>
+						)}
 					</>
 				)}
 

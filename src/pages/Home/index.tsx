@@ -2,7 +2,7 @@ import { useState, FocusEvent, KeyboardEvent, useContext } from 'react';
 import { useNameStartsWithCharacter } from '../../hooks/useCharacter';
 import { CharacterContext } from '../../contexts/CharacterContext';
 import styled from 'styled-components';
-import { Comic } from '../../components/Comic';
+import { Card } from '../../components/Card';
 import { motion, Variants } from 'framer-motion';
 
 const InputWrapper = styled.div`
@@ -113,20 +113,6 @@ export default function Home() {
 		},
 	};
 
-	const imgVariants: Variants = {
-		hidden: {
-			opacity: 0,
-			scale: 0.5,
-		},
-		show: {
-			opacity: 1,
-			scale: 1,
-			transition: {
-				delay: 0.8,
-			},
-		},
-	};
-
 	return (
 		<motion.div
 			initial={{ opacity: 0 }}
@@ -148,20 +134,24 @@ export default function Home() {
 					) : (
 						charactersList.data.results.map((character) => (
 							<motion.li key={character.id} variants={itemVariants}>
-								<Comic
-									to={`character/${character.name
-										.toLowerCase()
-										.replace(/[^a-zA-Z0-9 ]/gi, '')
-										.replace(/ /gi, '-')}`}
-									onClick={() => handleClick({ name: character.name, id: character.id })}
-								>
-									<motion.img
-										src={`${character.thumbnail.path}.${character.thumbnail.extension}`}
-										alt={character?.name}
-										variants={imgVariants}
-									/>
-									<span>{character?.name}</span>
-								</Comic>
+								<Card.Root>
+									<Card.Link
+										type="link"
+										url={`character/${character.name
+											.toLowerCase()
+											.replace(/[^a-zA-Z0-9 ]/gi, '')
+											.replace(/ /gi, '-')}`}
+										onClick={() => handleClick({ name: character.name, id: character.id })}
+									>
+										<Card.Image
+											src={`${character.thumbnail.path}.${character.thumbnail.extension}`}
+											alt={character?.name}
+											aspectRatio="3 / 4"
+										/>
+
+										<Card.Title text={character?.name} />
+									</Card.Link>
+								</Card.Root>
 							</motion.li>
 						))
 					)}
